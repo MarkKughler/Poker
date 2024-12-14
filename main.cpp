@@ -34,7 +34,7 @@ const char* PokerHandName[27] =
     "straight",                    // 14        
     "flush",                       // 15  
     "full house", "", "", "",      // 16       (2(8))
-    "flush", "", "", "",           // 20    
+    "", "", "", "",                //     
     "four of a kind",              // 24       (2(12))
     "staight flush",               // 25         
     "royal straight flush"         // 26        
