@@ -1,4 +1,5 @@
-﻿#include <Windows.h>        // GetStdHandle() and HANDLE
+
+#include <Windows.h>        // GetStdHandle() and HANDLE
 #include <iostream>
 #include <vector>
 #include <string>
