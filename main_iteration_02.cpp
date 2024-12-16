@@ -206,7 +206,14 @@ static void RankHand(HandInfo* hand)
     }
 
     // final rank determination from gathered information --------------------------------------------
-    if (straight_found && flush_found && (hand->cards[4] % 13 == 0)) hand->rank = 30; // royal flush
+    if (straight_found && flush_found)                                                // royal flush
+    {
+        if ((hand->cards[4] % 13 == 0))  hand->rank = 30;
+        else if ((hand->cards[4] % 13 == 12) && (offset == 1)) hand->rank = 30;
+        else if ((hand->cards[4] % 13 == 11) && (offset == 2)) hand->rank = 30;
+        else if ((hand->cards[4] % 13 == 10) && (offset == 3)) hand->rank = 30;
+        else hand->rank = 29;
+    }
     else if (straight_found && flush_found) hand->rank = 29;                          // straight flush
     else if (flush_found) hand->rank = 15;                                            // flush
     else if (straight_found) hand->rank = 14;                                         // straight
