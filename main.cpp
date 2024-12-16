@@ -119,7 +119,12 @@ static void RankHand(HandInfo* hand)
             int b = hand->cards[i] % 13;
             if (a == 0) a = 13;
             if (b == 0) b = 13;
-            if (b > a)  hand->high_card = hand->cards[i];
+            if (hand->high_card > 52)
+            {
+                if (hand->cards[i] > hand->high_card)
+                    hand->high_card = hand->cards[i];
+            }
+            else if ((b > a))  hand->high_card = hand->cards[i];
             else if (b == a)
             {   // choose the higher suit of this card value
                 if (hand->cards[i] > hand->high_card)
