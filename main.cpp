@@ -134,7 +134,7 @@ static void RankHand(HandInfo* hand)
     {
         for (int j = 0; j < 5; j++)
         {
-            if (hand->cards[i] > 52 || hand->cards[j] > 52) break;
+            if (hand->cards[i] > 52 || hand->cards[j] > 52) continue;
 
             if (i != j && ((hand->cards[j] % 13) == (hand->cards[i] % 13)))
                 hand->rank++;
