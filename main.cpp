@@ -1,4 +1,4 @@
-﻿
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -22,7 +22,7 @@ std::vector<int> deck_ids =
        53, 54, 55                                            // three wildcard jokers
 };
 unsigned deal_index = 0;                                     // sequential iteration (todo: auto bounds wrapping??? ((n) % 52)
-std::default_random_engine rng;                              // random engine instance
+//std::default_random_engine rng;                              // random engine instance
 const int max_players = 3;                                   // single deck game (shuffle beginning of each round)
 
 const char* PokerHandName[31] =
@@ -58,10 +58,12 @@ HandInfo player3_hand = { 0 };    // left
 
 static void Deal()
 {
+    std::random_device rd;
+    std::mt19937 mte(rd());
+   
     deal_index = 0;
-    std::shuffle(deck_ids.begin(), deck_ids.end(), rng);
-    std::shuffle(deck_ids.begin(), deck_ids.end(), rng);
-    std::shuffle(deck_ids.begin(), deck_ids.end(), rng);
+    for(int i=0; i<7; i++)
+        std::shuffle(deck_ids.begin(), deck_ids.end(), mte);
 
     for (int i = 0; i < 5; ++i)
     {
@@ -275,8 +277,8 @@ int main()
 
 
     // setup the deck and game
-    unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine rng(seed);
+    //unsigned seed = (unsigned)std::chrono::system_clock::now().time_since_epoch().count();
+    //std::default_random_engine rng(seed);
     Deal();
     
     
@@ -290,11 +292,10 @@ int main()
        40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52,   // heart grouping
        53, 54, 55                                            // three wildcards
     
-    
-    player2_hand.cards[0] = 40; 
-    player2_hand.cards[1] = 42;
-    player2_hand.cards[2] = 13;
-    player2_hand.cards[3] = 47;
+    player2_hand.cards[0] = 9; 
+    player2_hand.cards[1] = 10;
+    player2_hand.cards[2] = 55;
+    player2_hand.cards[3] = 54;
     player2_hand.cards[4] = 53;
     */
 
@@ -306,6 +307,7 @@ int main()
     char ch;
     int num;
     bool quit = false;
+    int draw_round = 0;
     while (!quit)
     {
         std::cout << "\n[" << _ec(33) << "d" << _ec(37) << "]raw card(s), [" 
@@ -317,9 +319,11 @@ int main()
             Deal();
             std::cout << "Dealer: "; DisplayHand(&dealer_hand); 
             std::cout << "Player: "; DisplayHand(&player2_hand);
+            draw_round = 0;
         }
         if (ch == 'q') quit = true;
-        if (ch == 'd') {
+        if (ch == 'd' && draw_round < 1) {
+            draw_round++;
             std::cout << "Number of Cards (" << _ec(33) << "1=>5" << _ec(37) << ") ";
             std::vector<int> card_ids;
             std::cin >> num;
@@ -334,7 +338,6 @@ int main()
             for (int id : card_ids)
             {
                 player2_hand.cards[id] = deck_ids[deal_index++];
-                if (deal_index == 52) { deal_index = 0; std::shuffle(deck_ids.begin(), deck_ids.end(), rng); }
             }
             std::cout << "Player: "; DisplayHand(&player2_hand);           
         }
