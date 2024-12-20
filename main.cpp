@@ -22,7 +22,6 @@ std::vector<int> deck_ids =
        53, 54, 55                                            // three wildcard jokers
 };
 unsigned deal_index = 0;                                     // sequential iteration (todo: auto bounds wrapping??? ((n) % 52)
-//std::default_random_engine rng;                              // random engine instance
 const int max_players = 3;                                   // single deck game (shuffle beginning of each round)
 
 const char* PokerHandName[31] =
@@ -80,7 +79,7 @@ static void Deal()
 }
 
 
-static void RankHand(HandInfo* hand)
+static void RankHand(HandInfo &hand)
 {
     //   solveable by comparison   |   determine by additional steps                    
     // ============================|=================================
@@ -96,9 +95,9 @@ static void RankHand(HandInfo* hand)
     //                      (29)   |         (straight flush)
     //                      (30)   |      (royal straight flush)
 
-    hand->high_card = 0;
-    hand->rank = 0;
-    hand->jokers.reset();
+    hand.high_card = 0;
+    hand.rank = 0;
+    hand.jokers.reset();
     bool flush_found    = false;
     bool straight_found = false;
     bool make_ace_high  = false;
@@ -107,69 +106,69 @@ static void RankHand(HandInfo* hand)
     // find high card ---------------------------------------------------------------------------
     for (int i = 0; i < 5; i++)
     {
-        if (hand->cards[i] > 52)
+        if (hand.cards[i] > 52)
         {   // handle jokers
-            if (hand->cards[i] > hand->high_card)
-                hand->high_card = hand->cards[i];
-            if (hand->cards[i] == 53) hand->jokers.set(0);
-            if (hand->cards[i] == 54) hand->jokers.set(1);
-            if (hand->cards[i] == 55) hand->jokers.set(2);
+            if (hand.cards[i] > hand.high_card)
+                hand.high_card = hand.cards[i];
+            if (hand.cards[i] == 53) hand.jokers.set(0);
+            if (hand.cards[i] == 54) hand.jokers.set(1);
+            if (hand.cards[i] == 55) hand.jokers.set(2);
         }
         else 
         {   // handle standard deck
-            int a = hand->high_card % 13;
-            int b = hand->cards[i] % 13;
+            int a = hand.high_card % 13;
+            int b = hand.cards[i] % 13;
             if (a == 0) a = 13;
             if (b == 0) b = 13;
-            if (hand->high_card > 52)
+            if (hand.high_card > 52)
             {
-                if (hand->cards[i] > hand->high_card)
-                    hand->high_card = hand->cards[i];
+                if (hand.cards[i] > hand.high_card)
+                    hand.high_card = hand.cards[i];
             }
-            else if ((b > a))  hand->high_card = hand->cards[i];
+            else if ((b > a))  hand.high_card = hand.cards[i];
             else if (b == a)
             {   // choose the higher suit of this card value
-                if (hand->cards[i] > hand->high_card)
-                    hand->high_card = hand->cards[i];
+                if (hand.cards[i] > hand.high_card)
+                    hand.high_card = hand.cards[i];
             }
         }
     }
 
-    size_t offset = hand->jokers.count();
+    size_t offset = hand.jokers.count();
     // process rank solvable by comparison -----------------------------------------------------------
     for (int i = 0; i < 5; i++) 
     {
         for (int j = 0; j < 5; j++)
         {
-            if (hand->cards[i] > 52 || hand->cards[j] > 52) continue;
+            if (hand.cards[i] > 52 || hand.cards[j] > 52) continue;
 
-            if (i != j && ((hand->cards[j] % 13) == (hand->cards[i] % 13)))
-                hand->rank++;
+            if (i != j && ((hand.cards[j] % 13) == (hand.cards[i] % 13)))
+                hand.rank++;
         }
     }   
-    hand->rank *= 2;                                                            // double result to make room for additional ranks
-    if ((hand->rank > 0) && (offset == 0)) return;                              // early out (can not be straight or flush)
+    hand.rank *= 2;                                                            // double result to make room for additional ranks
+    if ((hand.rank > 0) && (offset == 0)) return;                              // early out (can not be straight or flush)
     // handle jokers
-    if ((hand->rank == 12) && (offset == 1)) { hand->rank = 24; return; }       // three of a kind -> four of a kind
-    if ((hand->rank == 12) && (offset == 2)) { hand->rank = 28; return; }       // three of a kind -> five of a kind
-    if ((hand->rank == 8) && (offset == 1))  { hand->rank = 16; return; }       // two pair -> full house
-    if ((hand->rank == 4) && (offset == 1))  { hand->rank = 12; return; }       // one pair -> three of a kind
-    if ((hand->rank == 4) && (offset == 2))  { hand->rank = 24; return; }       // one pair -> four of a kind
-    if ((hand->rank == 4) && (offset == 3))  { hand->rank = 28; return; }       // one pair -> five of a kind
+    if ((hand.rank == 12) && (offset == 1)) { hand.rank = 24; return; }       // three of a kind -> four of a kind
+    if ((hand.rank == 12) && (offset == 2)) { hand.rank = 28; return; }       // three of a kind -> five of a kind
+    if ((hand.rank == 8) && (offset == 1))  { hand.rank = 16; return; }       // two pair -> full house
+    if ((hand.rank == 4) && (offset == 1))  { hand.rank = 12; return; }       // one pair -> three of a kind
+    if ((hand.rank == 4) && (offset == 2))  { hand.rank = 24; return; }       // one pair -> four of a kind
+    if ((hand.rank == 4) && (offset == 3))  { hand.rank = 28; return; }       // one pair -> five of a kind
    
     // continue evaluation checking for flush hand ---------------------------------------------------
     std::bitset<4> suit_bitset;
     for (int i = 0; i < 5; i++)
     {
-        if (hand->cards[i] < 14) suit_bitset.set(0);                            // clubs
-        if (hand->cards[i] > 13 && hand->cards[i] < 27) suit_bitset.set(1);     // diamonds
-        if (hand->cards[i] > 26 && hand->cards[i] < 40) suit_bitset.set(2);     // spades
-        if (hand->cards[i] > 39 && hand->cards[i] < 53) suit_bitset.set(3);     // hearts
+        if (hand.cards[i] < 14) suit_bitset.set(0);                            // clubs
+        if (hand.cards[i] > 13 && hand.cards[i] < 27) suit_bitset.set(1);     // diamonds
+        if (hand.cards[i] > 26 && hand.cards[i] < 40) suit_bitset.set(2);     // spades
+        if (hand.cards[i] > 39 && hand.cards[i] < 53) suit_bitset.set(3);     // hearts
     }                                                                           // absolutely no need to test for jokers present
     if (suit_bitset.count() == 1) flush_found = true;
     
     // check for straight ----------------------------------------------------------------------------
-    std::sort(hand->cards, hand->cards + 5, 
+    std::sort(hand.cards, hand.cards + 5, 
         [](const int& first, const int& second) -> bool
         {   // keeping connection to deck representation (handle Ace later)
             if ((first < 53) && (second < 53)) 
@@ -183,16 +182,16 @@ static void RankHand(HandInfo* hand)
         }
     );
     straight_found = true; //default true for sequential test
-    if ((hand->cards[4] % 13 == 12) && (hand->cards[offset] % 13 == 0))
+    if ((hand.cards[4] % 13 == 12) && (hand.cards[offset] % 13 == 0))
     {   // King is present. swap Ace to the back.
         make_ace_high = true;
-        std::rotate(&hand->cards[offset], &hand->cards[offset] + 1, &hand->cards[5]);
+        std::rotate(&hand.cards[offset], &hand.cards[offset] + 1, &hand.cards[5]);
     }
     int error_count = (int)offset+1;
     for (size_t i = offset; i < 4; i++)
     {
-        int a = hand->cards[i] % 13;
-        int b = hand->cards[i + 1] % 13;
+        int a = hand.cards[i] % 13;
+        int b = hand.cards[i + 1] % 13;
         if (make_ace_high)
         {
             if (a == 0) a = 13;
@@ -214,17 +213,17 @@ static void RankHand(HandInfo* hand)
     // final rank determination from gathered information --------------------------------------------
     if (straight_found && flush_found)                                                
     {
-        if ((hand->cards[4] % 13 == 0))  hand->rank = 30;                             // royal flush
-        else if ((hand->cards[4] % 13 == 12) && (offset == 1)) hand->rank = 30;       //     |
-        else if ((hand->cards[4] % 13 == 11) && (offset == 2)) hand->rank = 30;       //     |
-        else if ((hand->cards[4] % 13 == 10) && (offset == 3)) hand->rank = 30;       //     V
-        else hand->rank = 29;                                                         // straight flush
+        if ((hand.cards[4] % 13 == 0))  hand.rank = 30;                             // royal flush
+        else if ((hand.cards[4] % 13 == 12) && (offset == 1)) hand.rank = 30;       //     |
+        else if ((hand.cards[4] % 13 == 11) && (offset == 2)) hand.rank = 30;       //     |
+        else if ((hand.cards[4] % 13 == 10) && (offset == 3)) hand.rank = 30;       //     V
+        else hand.rank = 29;                                                         // straight flush
     }
-    else if (flush_found) hand->rank = 15;                                            // flush
-    else if (straight_found) hand->rank = 14;                                         // straight
-    else if (offset == 1) hand->rank = 4;                                             // (joker) one pair
-    else if (offset == 2) hand->rank = 12;                                            // (jokers) three of kind
-    else if (offset == 3) hand->rank = 24;                                            // (jokers) four of kind
+    else if (flush_found) hand.rank = 15;                                            // flush
+    else if (straight_found) hand.rank = 14;                                         // straight
+    else if (offset == 1) hand.rank = 4;                                             // (joker) one pair
+    else if (offset == 2) hand.rank = 12;                                            // (jokers) three of kind
+    else if (offset == 3) hand.rank = 24;                                            // (jokers) four of kind
 }
 
 
@@ -255,11 +254,11 @@ void Display(int card)
 }
 
 
-void DisplayHand(HandInfo* hand)
+void DisplayHand(HandInfo &hand)
 {
     RankHand(hand);
-    for (int card : hand->cards) Display(card);
-    std::cout << "  rank: " << PokerHandName[hand->rank] << "\n";
+    for (int card : hand.cards) Display(card);
+    std::cout << "  rank: " << PokerHandName[hand.rank] << "\n";
 }
 
 
@@ -300,8 +299,8 @@ int main()
     */
 
 
-    std::cout << "Dealer: "; DisplayHand(&dealer_hand);
-    std::cout << "Player: "; DisplayHand(&player2_hand);
+    std::cout << "Dealer: "; DisplayHand(dealer_hand);
+    std::cout << "Player: "; DisplayHand(player2_hand);
     
     // start main loop
     char ch;
@@ -317,8 +316,8 @@ int main()
         if (ch == 'r') {
             system("cls");
             Deal();
-            std::cout << "Dealer: "; DisplayHand(&dealer_hand); 
-            std::cout << "Player: "; DisplayHand(&player2_hand);
+            std::cout << "Dealer: "; DisplayHand(dealer_hand); 
+            std::cout << "Player: "; DisplayHand(player2_hand);
             draw_round = 0;
         }
         if (ch == 'q') quit = true;
@@ -339,7 +338,7 @@ int main()
             {
                 player2_hand.cards[id] = deck_ids[deal_index++];
             }
-            std::cout << "Player: "; DisplayHand(&player2_hand);           
+            std::cout << "Player: "; DisplayHand(player2_hand);           
         }
     }
    
