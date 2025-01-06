@@ -1,6 +1,6 @@
 # Poker
 
-![screenshot Jan 05, 2025]{/_screenshots/image_20250105.jpg)
+![screenshot Jan 05, 2025](/_screenshots/image_20250105.jpg)
 
 ## Five Card Poker Hand Evaluator
 
